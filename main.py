@@ -53,12 +53,14 @@ def process_karaoke(
     beat_path = stems["beat_path"]
     print(f"[✓] Vocals and Beat separated.")
 
-    # Step 3: Transcribe vocals and generate word timestamps
-    print("\n--- STEP 3/4: Transcribing Vocals & Generating Karaoke Subtitles ---")
-    segments = transcribe_audio(
-        audio_path=vocals_path,
+    # Step 3: Smart Lyrics extraction (Full-Auto)
+    print("\n--- STEP 3/4: Fetching Smart Accurate Lyrics & Timing ---")
+    from lyrics_engine import get_smart_karaoke_lyrics
+    segments = get_smart_karaoke_lyrics(
+        youtube_url=youtube_url,
+        vocals_path=vocals_path,
         model_size=whisper_model,
-        language=language
+        language=language or "vi"
     )
     
     ass_path = os.path.join(output_dir, f"{song_id}_karaoke.ass")

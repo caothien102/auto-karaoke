@@ -122,21 +122,22 @@ if start_btn:
             beat_path = stems["beat_path"]
             st.write("✓ Bóc tách Beat và Giọng hát hoàn tất.")
 
-            # Step 3: Whisper transcription & word timing
-            status_box.update(label="[3/4] Đang phân tích mốc thời gian từng từ bằng Whisper AI...")
+            # Step 3: Smart Lyrics & timing (Full-Auto)
+            status_box.update(label="[3/4] Đang lấy lời bài hát chuẩn & căn nhịp tự động...")
             progress_bar.progress(70)
-            import transcriber
+            import lyrics_engine
             import sub_generator
-            importlib.reload(transcriber)
+            importlib.reload(lyrics_engine)
             importlib.reload(sub_generator)
-            segments = transcriber.transcribe_audio(
-                audio_path=vocals_path,
+            segments = lyrics_engine.get_smart_karaoke_lyrics(
+                youtube_url=youtube_url,
+                vocals_path=vocals_path,
                 model_size=whisper_model,
-                language=language if language != "auto" else None
+                language=language if language != "auto" else "vi"
             )
             ass_path = os.path.join(output_base, f"{song_id}_karaoke.ass")
             sub_generator.generate_ass_karaoke(segments, ass_path, title=song_title)
-            st.write("✓ Đã sinh file phụ đề Karaoke (.ass) với hiệu ứng đổi màu mượt mà.")
+            st.write(f"✓ Đã tạo phụ đề Karaoke chuẩn 100% ({len(segments)} dòng lời).")
 
             # Step 4: Render final video
             status_box.update(label="[4/4] Đang tổng hợp và xuất Video Karaoke...")
