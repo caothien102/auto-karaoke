@@ -31,13 +31,26 @@ def download_youtube(url: str, output_dir: str = "downloads") -> dict:
 
     print(f"[*] Downloading YouTube content from: {url}")
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
+        info = ydl.extract_info(url, download=False)
         video_id = info.get('id', 'video')
         title = info.get('title', 'Unknown Title')
         duration = info.get('duration', 0)
 
-    video_path = os.path.join(output_dir, f"{video_id}.mp4")
-    audio_path = os.path.join(output_dir, f"{video_id}.wav")
+        video_path = os.path.join(output_dir, f"{video_id}.mp4")
+        audio_path = os.path.join(output_dir, f"{video_id}.wav")
+
+        if os.path.exists(video_path) and os.path.exists(audio_path):
+            print(f"[+] Reusing existing video and audio for {video_id}")
+            return {
+                "id": video_id,
+                "title": title,
+                "duration": duration,
+                "video_path": os.path.abspath(video_path),
+                "audio_path": os.path.abspath(audio_path)
+            }
+
+        # Download if not present
+        ydl.download([url])
 
     # Extract clean WAV audio (44.1kHz, 16-bit stereo) for AI models
     print(f"[*] Extracting audio to WAV format: {audio_path}")

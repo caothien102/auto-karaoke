@@ -1,6 +1,16 @@
 import os
 import sys
+import ssl
+import static_ffmpeg
 import whisper
+
+static_ffmpeg.add_paths()
+
+# Bypass SSL verify for model checkpoint download if Mac certificates are missing
+try:
+    ssl._create_default_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
 
 def transcribe_audio(audio_path: str, model_size: str = "base", language: str = None) -> list:
     """
@@ -13,7 +23,8 @@ def transcribe_audio(audio_path: str, model_size: str = "base", language: str = 
 
     options = {
         "word_timestamps": True,
-        "verbose": False
+        "verbose": False,
+        "fp16": False  # Use FP32 for CPU on Apple Silicon to prevent warnings
     }
     if language:
         options["language"] = language

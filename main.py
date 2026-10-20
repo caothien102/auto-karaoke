@@ -2,6 +2,10 @@ import os
 import sys
 import argparse
 import time
+import static_ffmpeg
+
+# Ensure ffmpeg binary is in system PATH for Whisper and all subprocesses
+static_ffmpeg.add_paths()
 
 def process_karaoke(
     youtube_url: str,

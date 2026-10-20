@@ -1,6 +1,19 @@
 import os
+import sys
 import time
+import ssl
+import importlib
+import static_ffmpeg
 import streamlit as st
+
+# Ensure ffmpeg binary is in system PATH for Whisper and ffmpeg rendering
+static_ffmpeg.add_paths()
+
+# Fix potential SSL certificate verify issues on macOS Python
+try:
+    ssl._create_default_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
 
 st.set_page_config(
     page_title="AI Auto Karaoke Generator",
@@ -86,8 +99,9 @@ if start_btn:
             # Step 1: Download
             status_box.update(label="[1/4] Đang tải video & audio từ YouTube...")
             progress_bar.progress(15)
-            from downloader import download_youtube
-            media_info = download_youtube(youtube_url, output_dir=os.path.join(output_base, "downloads"))
+            import downloader
+            importlib.reload(downloader)
+            media_info = downloader.download_youtube(youtube_url, output_dir=os.path.join(output_base, "downloads"))
             song_id = media_info["id"]
             song_title = media_info["title"]
             video_path = media_info["video_path"]
@@ -97,8 +111,9 @@ if start_btn:
             # Step 2: Separate audio
             status_box.update(label="[2/4] Đang tách beat bằng AI Demucs (Meta)...")
             progress_bar.progress(40)
-            from separator import separate_audio
-            stems = separate_audio(
+            import separator
+            importlib.reload(separator)
+            stems = separator.separate_audio(
                 audio_path=audio_path,
                 output_dir=os.path.join(output_base, "separated"),
                 model_name=demucs_model
@@ -110,23 +125,26 @@ if start_btn:
             # Step 3: Whisper transcription & word timing
             status_box.update(label="[3/4] Đang phân tích mốc thời gian từng từ bằng Whisper AI...")
             progress_bar.progress(70)
-            from transcriber import transcribe_audio
-            from sub_generator import generate_ass_karaoke
-            segments = transcribe_audio(
+            import transcriber
+            import sub_generator
+            importlib.reload(transcriber)
+            importlib.reload(sub_generator)
+            segments = transcriber.transcribe_audio(
                 audio_path=vocals_path,
                 model_size=whisper_model,
                 language=language if language != "auto" else None
             )
             ass_path = os.path.join(output_base, f"{song_id}_karaoke.ass")
-            generate_ass_karaoke(segments, ass_path, title=song_title)
+            sub_generator.generate_ass_karaoke(segments, ass_path, title=song_title)
             st.write("✓ Đã sinh file phụ đề Karaoke (.ass) với hiệu ứng đổi màu mượt mà.")
 
             # Step 4: Render final video
             status_box.update(label="[4/4] Đang tổng hợp và xuất Video Karaoke...")
             progress_bar.progress(90)
-            from renderer import render_karaoke_video
+            import renderer
+            importlib.reload(renderer)
             final_video_path = os.path.join(output_base, f"{song_id}_karaoke.mp4")
-            render_karaoke_video(
+            renderer.render_karaoke_video(
                 background_video=video_path,
                 beat_audio=beat_path,
                 ass_subtitles=ass_path,

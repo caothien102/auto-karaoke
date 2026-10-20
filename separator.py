@@ -12,6 +12,18 @@ def separate_audio(audio_path: str, output_dir: str = "separated", model_name: s
     audio_path = os.path.abspath(audio_path)
     base_name = os.path.splitext(os.path.basename(audio_path))[0]
 
+    target_dir = os.path.join(output_dir, model_name, base_name)
+    vocals_path = os.path.join(target_dir, "vocals.wav")
+    no_vocals_path = os.path.join(target_dir, "no_vocals.wav")
+
+    # If already separated, reuse existing files to save time
+    if os.path.exists(vocals_path) and os.path.exists(no_vocals_path):
+        print(f"[+] Reusing existing separated files from {target_dir}")
+        return {
+            "vocals_path": os.path.abspath(vocals_path),
+            "beat_path": os.path.abspath(no_vocals_path)
+        }
+
     # Note: Demucs htdemucs conv1d has channel dimensions not yet supported by Apple MPS.
     # Apple Silicon CPU has high-performance SIMD/NEON cores and processes audio very fast.
     device = "cpu"

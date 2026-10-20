@@ -1,6 +1,9 @@
 import os
 import shutil
 import subprocess
+import static_ffmpeg
+
+static_ffmpeg.add_paths()
 
 def get_ffmpeg_path():
     venv_ffmpeg = os.path.abspath(os.path.join(os.path.dirname(__file__), ".venv", "bin", "ffmpeg"))
