@@ -1,0 +1,6 @@
+yt-dlp
+demucs
+openai-whisper
+static-ffmpeg
+torch
+torchaudio
