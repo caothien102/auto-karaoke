@@ -4,3 +4,4 @@ openai-whisper
 static-ffmpeg
 torch
 torchaudio
+streamlit
