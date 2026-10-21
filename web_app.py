@@ -71,6 +71,18 @@ with st.sidebar:
         index=0
     )
     st.divider()
+    st.header("🎵 Hát đệm & Bè (Vocal Guide)")
+    vocal_guide_pct = st.slider(
+        "Âm lượng giọng ca sĩ đệm",
+        min_value=0,
+        max_value=50,
+        value=20,
+        step=5,
+        format="%d%%",
+        help="0% = Beat sạch 100%. 15-25% = Giọng ca sĩ hát đệm vừa phải để dễ bắt nhịp. 50% = Hát song ca."
+    )
+    vocal_guide_vol = vocal_guide_pct / 100.0
+    st.divider()
     st.markdown("""
     **💡 Hướng dẫn nhanh:**
     1. Dán đường dẫn YouTube bài hát bạn thích.
@@ -149,7 +161,9 @@ if start_btn:
                 background_video=video_path,
                 beat_audio=beat_path,
                 ass_subtitles=ass_path,
-                output_video=final_video_path
+                output_video=final_video_path,
+                vocal_audio=vocals_path,
+                vocal_guide_volume=vocal_guide_vol
             )
 
             progress_bar.progress(100)

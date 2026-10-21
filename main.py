@@ -12,7 +12,8 @@ def process_karaoke(
     output_dir: str = "output",
     whisper_model: str = "base",
     demucs_model: str = "htdemucs",
-    language: str = "vi"
+    language: str = "vi",
+    vocal_guide: float = 0.2
 ):
     from downloader import download_youtube
     from separator import separate_audio
@@ -68,13 +69,15 @@ def process_karaoke(
     print(f"[✓] Generated karaoke subtitles (.ass)")
 
     # Step 4: Render final karaoke video
-    print("\n--- STEP 4/4: Rendering Final Karaoke Video ---")
+    print(f"\n--- STEP 4/4: Rendering Final Karaoke Video (Vocal Guide: {int(vocal_guide * 100)}%) ---")
     final_output_path = os.path.join(output_dir, f"{song_id}_karaoke.mp4")
     render_karaoke_video(
         background_video=video_path,
         beat_audio=beat_path,
         ass_subtitles=ass_path,
-        output_video=final_output_path
+        output_video=final_output_path,
+        vocal_audio=vocals_path,
+        vocal_guide_volume=vocal_guide
     )
 
     elapsed = time.time() - start_time
@@ -92,6 +95,7 @@ def main():
     parser.add_argument("--whisper-model", "-w", type=str, default="base", choices=["tiny", "base", "small", "medium", "large"], help="Whisper model size")
     parser.add_argument("--demucs-model", "-d", type=str, default="htdemucs", help="Demucs model (default: htdemucs)")
     parser.add_argument("--lang", "-l", type=str, default="vi", help="Song language code (e.g. 'vi', 'en') or leave empty for auto")
+    parser.add_argument("--vocal-guide", "-vg", type=float, default=0.2, help="Vocal guide volume 0.0-1.0 (default: 0.2 for 20% soft vocal guide)")
 
     args = parser.parse_args()
     process_karaoke(
@@ -99,7 +103,8 @@ def main():
         output_dir=args.output,
         whisper_model=args.whisper_model,
         demucs_model=args.demucs_model,
-        language=args.lang if args.lang != "auto" else None
+        language=args.lang if args.lang != "auto" else None,
+        vocal_guide=args.vocal_guide
     )
 
 if __name__ == "__main__":
